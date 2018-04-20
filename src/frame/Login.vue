@@ -1,0 +1,137 @@
+<template>
+    <div class="login-bg">
+        <!--<header class="sso-header">-->
+        <!--<a href="http://www.lagou.com" class="logo ">-->
+        <!--</a>-->
+        <!--</header>-->
+
+        <section class="content-box">
+            <div class="form-head">登录</div>
+            <el-form ref="loginForm" :model="loginForm" :rules="rules" size="large">
+
+                <el-form-item label="" prop="username">
+                    <el-input v-model="loginForm.username" placeholder="请输入用户名"></el-input>
+                </el-form-item>
+
+                <el-form-item label="" prop="password">
+                    <el-input type="password" v-model="loginForm.password" auto-complete="off"
+                              placeholder="请输入密码" @keyup.enter.native="pressKey"></el-input>
+                </el-form-item>
+
+                <div class="login-captcha">
+                    <el-form-item label="" prop="captcha">
+                        <el-input v-model="loginForm.captcha" auto-complete="off"
+                                  placeholder="请输入验证码" @keyup.enter.native="pressKey">
+                            <template slot="append"><img class="login-captcha" src="../assets/images/test.png"/></template>
+                        </el-input>
+                    </el-form-item>
+                </div>
+
+                <el-form-item>
+                    <el-button type="primary" @click="submitForm('loginForm')" style="width: 100%">登录</el-button>
+                </el-form-item>
+            </el-form>
+        </section>
+    </div>
+</template>
+
+<script>
+    import util from '../common/util'
+
+    export default {
+        data() {
+            return {
+                loginForm: {
+                    username: '',
+                    password: '',
+                    captcha: ''
+                },
+                rules: {
+                    username: [
+                        {required: true, message: '请输入用户名', trigger: 'blur'},
+                        {max: 20, message: '长度在20个字符以内', trigger: 'blur' }
+                    ],
+                    password: [
+                        {required: true, message: '请输入密码', trigger: 'blur'},
+                        {max: 20, message: '长度在20个字符以内', trigger: 'blur' }
+                    ],
+                    captcha: [
+                        {required: true, message: '请输入验证码', trigger: 'blur'},
+                        {max: 4, message: '长度在4个字符以内', trigger: 'blur' }
+                    ]
+                }
+            }
+        },
+        mounted: function () {
+            this.$nextTick(function () {
+
+            })
+        },
+        methods: {
+            submitForm(formName) {
+                // var self = this
+                this.$refs[formName].validate((valid) => {
+                    if (valid) {
+                        this.login()
+                    } else {
+                        return false;
+                    }
+                })
+            },
+            login() {
+                var param = {
+                    username: this.loginForm.username,
+                    password: util.hashPwd(this.loginForm.password),
+                    captcha: this.loginForm.captcha
+                }
+                this.$http.post('/system/login', param).then(function (response) {
+                        console.log(response);
+                    })
+                    .catch(function (response) {
+                        console.log(response);
+                    });
+            },
+            pressKey(e) {
+                if (e.keyCode === 13) {
+                    this.submitForm('loginForm')
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    .content-box {
+        width: 400px;
+        height: 260px;
+        padding: 40px 70px 38px 78px;
+        background-color: #fff;
+        border-radius: 2px;
+        border: 1px solid #dce1e6;
+        color: #519CE0;
+        border-radius: .25rem;
+    }
+
+    .form-head {
+        height: 33px;
+    }
+
+    .login-bg {
+        margin-top: 100px;
+        width: 100%;
+        height: 100%;
+        background-color: #FAFAFA;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /*background-repeat: no-repeat;*/
+        /*background-image: url("../assets/images/login_bg.jpg");*/
+        /*background-position: center;*/
+    }
+    /*为了覆盖验证码*/
+    .login-captcha .el-input-group__append, .el-input-group__prepend{
+        border:0px;
+        padding:0 5px;
+    }
+
+</style>
