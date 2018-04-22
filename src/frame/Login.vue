@@ -84,7 +84,8 @@
                     password: util.hashPwd(this.loginForm.password),
                     captcha: this.loginForm.captcha
                 }
-                this.$http.post('/system/login', param).then(function (response) {
+                this.$http.post('/system/login.do', param).then(function (response) {
+                        console.log(param)
                         console.log(response);
                     })
                     .catch(function (response) {
@@ -100,7 +101,11 @@
     }
 </script>
 
-<style>
+<style scoped>
+    body{
+        background-color: #FAFAFA;
+    }
+
     .content-box {
         width: 400px;
         height: 260px;
@@ -109,7 +114,6 @@
         border-radius: 2px;
         border: 1px solid #dce1e6;
         color: #519CE0;
-        border-radius: .25rem;
     }
 
     .form-head {
@@ -120,7 +124,7 @@
         margin-top: 100px;
         width: 100%;
         height: 100%;
-        background-color: #FAFAFA;
+
         display: flex;
         justify-content: center;
         align-items: center;
@@ -128,10 +132,11 @@
         /*background-image: url("../assets/images/login_bg.jpg");*/
         /*background-position: center;*/
     }
-    /*为了覆盖验证码*/
+</style>
+<style>
+    /*为了覆盖验证码的样式*/
     .login-captcha .el-input-group__append, .el-input-group__prepend{
         border:0px;
         padding:0 5px;
     }
-
 </style>

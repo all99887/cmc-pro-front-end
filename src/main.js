@@ -15,7 +15,6 @@ axios.interceptors.request.use(
         //     config.headers.Authorization = token;
         // }
         config.url = '/api' + config.url
-        console.log(config)
         return config;
     },
     err => {

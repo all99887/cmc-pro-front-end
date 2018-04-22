@@ -3,6 +3,7 @@
  * @author liuyanxiang
  */
 import bcryptjs from 'bcryptjs'
+import sha256js from 'js-sha256'
 
 function bcrypt(message){
     var salt = bcryptjs.genSaltSync(10);
@@ -10,9 +11,13 @@ function bcrypt(message){
     return hash
 }
 
+function hashPwd(password){
+    return sha256js.sha256(password + "higitech")
+}
+
 
 let util = {
-    hashPwd: bcrypt,//aes加密
+    hashPwd: hashPwd,
 }
 
 export default util
