@@ -15,9 +15,15 @@ function hashPwd(password){
     return sha256js.sha256(password + "higitech")
 }
 
+function getWebRootPath () {
+    var pathName = window.document.location.pathname
+    var projectName = pathName.substring(0, pathName.substr(1).indexOf('/') + 1)
+    return projectName
+}
 
 let util = {
     hashPwd: hashPwd,
+    getWebRootPath: getWebRootPath
 }
 
 export default util

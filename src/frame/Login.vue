@@ -22,7 +22,9 @@
                     <el-form-item label="" prop="captcha">
                         <el-input v-model="loginForm.captcha" auto-complete="off"
                                   placeholder="请输入验证码" @keyup.enter.native="pressKey">
-                            <template slot="append"><img class="login-captcha" src="../assets/images/test.png"/></template>
+                            <template slot="append">
+                                <img class="login-captcha" :src="captchaPic" @click="refreshCaptcha"/>
+                            </template>
                         </el-input>
                     </el-form-item>
                 </div>
@@ -37,10 +39,17 @@
 
 <script>
     import util from '../common/util'
+    import {SET_TOKEN} from "~/store/mutation-type";
 
     export default {
+        computed: {
+            captchaPic(){
+                return 'data:image/png;base64,' + this.captchaBase64
+            }
+        },
         data() {
             return {
+                captchaBase64:'',
                 loginForm: {
                     username: '',
                     password: '',
@@ -64,10 +73,20 @@
         },
         mounted: function () {
             this.$nextTick(function () {
-
+                this.refreshCaptcha()
             })
         },
         methods: {
+            refreshCaptcha(){
+                console.log(123)
+                this.$http.post('/system/webPicCaptcha.do', {}, {}).then(response =>  {
+                    if(response.data.success){
+                        this.captchaBase64 = response.data.pic
+                    }
+                }).catch(response => {
+                    console.log(response);
+                });
+            },
             submitForm(formName) {
                 // var self = this
                 this.$refs[formName].validate((valid) => {
@@ -84,13 +103,19 @@
                     password: util.hashPwd(this.loginForm.password),
                     captcha: this.loginForm.captcha
                 }
-                this.$http.post('/system/login.do', param).then(function (response) {
-                        console.log(param)
-                        console.log(response);
-                    })
-                    .catch(function (response) {
-                        console.log(response);
-                    });
+                this.$http.post('/system/webLogin.do', param, {}).then(response =>  {
+                    if(response.data.success){
+                        let token = response.data.token
+                        sessionStorage.setItem("CMCPROTOKEN", token)
+                        sessionStorage.setItem("username", this.loginForm.username)
+                        sessionStorage.setItem("realName", response.data.realName)
+                        this.$router.push({name: 'main'})
+                    } else {
+                        this.refreshCaptcha()
+                    }
+                }).catch(response => {
+                    console.log(response);
+                });
             },
             pressKey(e) {
                 if (e.keyCode === 13) {
@@ -138,5 +163,6 @@
     .login-captcha .el-input-group__append, .el-input-group__prepend{
         border:0px;
         padding:0 5px;
+        cursor: pointer;
     }
 </style>
