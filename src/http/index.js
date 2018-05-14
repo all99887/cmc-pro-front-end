@@ -55,16 +55,18 @@ axios.interceptors.response.use(
         if (error.response) {
             switch (error.response.status) {
                 case 401:{
-                    console.log("401")
                     let authResult = error.response.headers['auth-result']
-                    console.log(authResult)
                     if(authResult === 'notLogin'){
                         sessionStorage.removeItem('CMCPROTOKEN')
-                        console.log("notLogin")
                         router.replace({
                             name: 'login'
                             // query: {redirect: router.currentRoute.fullPath}//登录成功后跳入浏览的当前页面
                         })
+                    } else if (authResult === 'noPermission') {
+                        Message({
+                            message: '没有操作权限',
+                            type: 'error'
+                        });
                     }
                 }
             }

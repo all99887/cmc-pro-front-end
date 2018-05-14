@@ -5,7 +5,7 @@
         <!--</a>-->
         <!--</header>-->
 
-        <section class="content-box">
+        <section class="login-content-box">
             <div class="form-head">登录</div>
             <el-form ref="loginForm" :model="loginForm" :rules="rules" size="large">
 
@@ -109,7 +109,7 @@
                         sessionStorage.setItem("CMCPROTOKEN", token)
                         sessionStorage.setItem("username", this.loginForm.username)
                         sessionStorage.setItem("realName", response.data.realName)
-                        this.$router.push({name: 'main'})
+                        this.$router.push({name: 'index'})
                     } else {
                         this.refreshCaptcha()
                     }
@@ -131,7 +131,7 @@
         background-color: #FAFAFA;
     }
 
-    .content-box {
+    .login-content-box {
         width: 400px;
         height: 260px;
         padding: 40px 70px 38px 78px;

@@ -21,12 +21,17 @@
             <aside :class="collapsed?'menu-collapsed':'menu-expanded'">
                 <!--导航菜单-->
                 <el-menu  @select="menuClick" background-color="#efefef">
-
                     <el-submenu v-if="sysAdminOn" class="text-left" key="sysAdmin" index="sysAdmin">
                         <template slot="title"><i class="el-icon-menu"></i>系统管理</template>
                         <div>
-                            <router-link :to="{ name: 'funcAdmin' }" tag="li" replace>
+                            <router-link :to="{ name: 'funcAdmin'}" tag="li" replace @click.native="setRouterTitle('菜单管理')">
                                 <el-menu-item index="funcAdminIndex">菜单管理</el-menu-item>
+                            </router-link>
+                            <router-link :to="{ name: 'roleAdmin'}" tag="li" replace @click.native="setRouterTitle('角色管理')">
+                                <el-menu-item index="roleAdminIndex">角色管理</el-menu-item>
+                            </router-link>
+                            <router-link :to="{ name: 'userAdmin'}" tag="li" replace @click.native="setRouterTitle('用户管理')">
+                                <el-menu-item index="userAdminIndex">用户管理</el-menu-item>
                             </router-link>
                         </div>
                     </el-submenu>
@@ -37,7 +42,7 @@
                                 <template slot="title">{{ submenu.func_name }}</template>
                                 <el-menu-item :index="index.toString() + '-' + subindex.toString()">{{ submenu.funcName }}</el-menu-item>
                             </el-submenu>
-                            <router-link v-else :to="{ name: submenu.funcIndexUrl }" tag="li" replace>
+                            <router-link v-else :to="{ name: submenu.funcIndexUrl }" tag="li" replace @click.native="setRouterTitle(submenu.funcName)">
                                 <el-menu-item :index="index.toString() + '-' + subindex.toString()">{{ submenu.funcName }}</el-menu-item>
                             </router-link>
                         </div>
@@ -47,7 +52,9 @@
             <section class="content-container">
                 <div class="grid-content bg-purple-light">
                     <el-col :span="24" class="breadcrumb-container">
-
+                        <div class="breadcrumb-content-box">
+                            {{routerTitle}}
+                        </div>
                     </el-col>
                     <el-col :span="24" class="content-wrapper">
                         <transition name="fade" mode="out-in">
@@ -67,7 +74,8 @@
                 collapsed: false,
                 funcList: [],
                 sysAdminOn: false,
-                sysUserName: ''
+                sysUserName: '',
+                routerTitle:'欢迎'
             }
         },
         mounted() {
@@ -76,8 +84,10 @@
                 if (realName) {
                     this.sysUserName = realName || '';
                 }
+                let funcName = sessionStorage.getItem("funcName")
+                this.routerTitle = funcName
                 //获取菜单列表
-                this.$http.post('/system/funcList', {}, {}).then(response =>  {
+                this.$http.post('/system/menuList', {}, {}).then(response =>  {
                     if(response.data.success){
                         let funcList = response.data.funcList
                         let funcListFinal = []
@@ -103,6 +113,10 @@
             })
         },
         methods: {
+            setRouterTitle(title){
+                sessionStorage.setItem("funcName", title)
+                this.routerTitle = title
+            },
             //退出登录
             logout () {
                 var _this = this;
@@ -199,10 +213,10 @@
         .main {
             display: flex;
             // background: #324057;
-            position: absolute;
+            /*position: absolute;*/
             top: 60px;
             bottom: 0px;
-            overflow: hidden;
+            /*overflow: hidden;*/
             aside {
                 flex: 0 0 230px;
                 width: 230px;
@@ -236,7 +250,7 @@
                 width: 230px;
             }
             .content-container {
-                // background: #f1f2f7;
+                background: #f1f2f7;
                 flex: 1;
                 // position: absolute;
                 // right: 0px;
@@ -246,6 +260,9 @@
                 overflow-y: scroll;
                 padding: 20px;
                 .breadcrumb-container {
+                    /*background-color: #fff;*/
+                    height: 40px;
+                    line-height: 40px;
                     //margin-bottom: 15px;
                     .title {
                         width: 200px;
@@ -255,9 +272,15 @@
                     .breadcrumb-inner {
                         float: right;
                     }
+                    .breadcrumb-content-box{
+                        height: 40px;
+                        background: #ffffff;
+                        margin: 0px 10px;
+                    }
                 }
                 .content-wrapper {
                     background-color: #fff;
+                    /*background: #f2f2f2;*/
                     box-sizing: border-box;
                 }
             }

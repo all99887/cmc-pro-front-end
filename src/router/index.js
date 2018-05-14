@@ -9,7 +9,10 @@ Vue.use(VueRouter)
 import Login from '../frame/Login'
 import Main from '../frame/Main'
 import NotFoundPage from '../components/NotFoundPage'
-import FuncAdmin from '../components/FuncAdmin'
+import Hello from '../components/Hello'
+import FuncAdmin from '../components/admin/FuncAdmin'
+import RoleAdmin from '../components/admin/RoleAdmin'
+import UserAdmin from '../components/admin/UserAdmin'
 
 let router = new VueRouter({
     mode: 'history',
@@ -30,9 +33,25 @@ let router = new VueRouter({
             },
             children: [
                 {
-                    path: '/func',
+                    path: '/index_html',
+                    name: 'index',
+                    component: Hello
+                },
+                {
+                    path: '/func_html',
                     name: 'funcAdmin',
                     component: FuncAdmin
+                },
+                {
+                    path: '/role_html',
+                    name: 'roleAdmin',
+                    component: RoleAdmin
+                }
+                ,
+                {
+                    path: '/cmcuser_html',
+                    name: 'userAdmin',
+                    component: UserAdmin
                 }
             ]
         },
