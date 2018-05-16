@@ -68,7 +68,6 @@
                     <el-dialog
                             :title="dialogTitle"
                             :visible.sync="dialogVisible"
-                            :modal="false"
                             width="500px">
 
                         <el-form ref="form" :model="form" :rules="rules" label-width="100px" label-suffix="：">
@@ -95,7 +94,6 @@
                     <el-dialog
                             title="分配角色"
                             :visible.sync="dialogRoleVisible"
-                            :modal="false"
                             width="550px">
 
                         <el-transfer
@@ -223,10 +221,12 @@
             },
             openDialog(formType, data) {
                 this.formType = formType
+                this.form = this.initForm()
                 if (formType == 'edit') {
+                    this.dialogTitle = '编辑'
                     Object.assign(this.form, data)
                 } else {
-                    this.form = this.initForm()
+                    this.dialogTitle = '新增'
                 }
                 this.dialogVisible = true
             },
@@ -316,7 +316,6 @@
                         }
 
                         this.selRoleList = userRoleList
-                        console.log(this.selRoleList)
                         this.currentUserId = row.userId
                         this.dialogRoleVisible = true
                     } else {

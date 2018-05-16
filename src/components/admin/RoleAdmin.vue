@@ -32,9 +32,10 @@
                                 </template>
                             </el-table-column>
 
-                            <el-table-column label="操作" width="100px">
+                            <el-table-column label="操作" width="180px">
                                 <template slot-scope="scope">
                                     <el-button size="mini" type="primary" @click="openDialog('edit', scope.row)">编辑</el-button>
+                                    <el-button size="mini" type="primary" @click="openFuncDialog(scope.row)">功能授权</el-button>
                                 </template>
                             </el-table-column>
 
@@ -57,7 +58,6 @@
                     <el-dialog
                             :title="dialogTitle"
                             :visible.sync="dialogVisible"
-                            :modal="false"
                             width="500px">
 
                         <el-form ref="form" :model="form" :rules="rules" label-width="100px" label-suffix="：">
@@ -72,6 +72,30 @@
                         <span slot="footer" class="dialog-footer">
                             <el-button @click="dialogVisible = false">取 消</el-button>
                             <el-button type="primary" @click="submitForm()">确 定</el-button>
+                        </span>
+                    </el-dialog>
+
+                    <el-dialog
+                            title="功能授权"
+                            :visible.sync="dialogFuncVisible"
+                            width="500px">
+
+                        <el-tree
+                                :data="funcTreeList"
+                                :default-expanded-keys="expendTreeKey"
+                                :default-checked-keys="defaultCheckedTreeKeys"
+                                node-key="funcId"
+                                ref="grantTree"
+                                :accordion="true"
+                                :expand-on-click-node="false"
+                                show-checkbox
+                        >
+                        </el-tree>
+
+
+                        <span slot="footer" class="dialog-footer">
+                            <el-button @click="dialogFuncVisible = false">取 消</el-button>
+                            <el-button type="primary" @click="submitFuncForm()">确 定</el-button>
                         </span>
                     </el-dialog>
                 </div>
@@ -102,7 +126,13 @@
                         {required: true, message: '请输入角色描述', trigger: 'blur'},
                         {max: 64, message: '长度在64个字符以内', trigger: 'blur'}
                     ]
-                }
+                },
+                dialogFuncVisible:false,
+                funcTreeList: [],
+                currentRoleId:'',
+                expendTreeKey: [-1],
+                defaultCheckedTreeKeys: [],
+                selFuncTreeList:[]
             }
         },
         mounted() {
@@ -149,10 +179,12 @@
             },
             openDialog(formType, data) {
                 this.formType = formType
+                this.form = this.initForm()
                 if (formType == 'edit') {
+                    this.dialogTitle = '编辑'
                     Object.assign(this.form, data)
                 } else {
-                    this.form = this.initForm()
+                    this.dialogTitle = '新增'
                 }
                 this.dialogVisible = true
             },
@@ -227,6 +259,88 @@
                         console.log(response);
                     });
                 }).catch(() => {
+                });
+            },
+            loadFuncTree(roleId, openDialog){
+                let params = {
+                    roleId:roleId
+                }
+                this.$http.post('/cmcProAdmin/role/funcRel/list', params, {loading:true}).then(response => {
+                    if (response.data.success) {
+                        let funcList = response.data.allFuncList
+                        let roleFuncRelList = response.data.roleFuncList
+                        funcList.filter((func) => {
+                            func.label = func.funcName
+                            return func
+                        })
+
+                        let funcListFinal = []
+                        for (let func of funcList) {
+                            //如果是父节点
+                            if (func.pid === -1) {
+                                let children = []
+                                for (let funcSub of funcList) {
+                                    if (funcSub.pid === func.funcId) {
+                                        children.push(funcSub)
+                                    }
+                                }
+                                func.children = children
+                                funcListFinal.push(func)
+                            }
+                        }
+                        let treeData = {
+                            label: '功能树',
+                            funcId: -1,
+                            children: funcListFinal
+                        }
+                        this.funcTreeList = [treeData]
+
+                        let checkedTreeKeys = []
+                        for(let item of roleFuncRelList){
+                            checkedTreeKeys.push(item.funcId)
+                        }
+
+                        this.defaultCheckedTreeKeys = checkedTreeKeys
+                        this.currentRoleId = roleId
+                        if(openDialog) {
+                            this.dialogFuncVisible = true
+                        }
+                    }
+                }).catch(response => {
+                    console.log(response);
+                });
+            },
+            openFuncDialog(row){
+                this.loadFuncTree(row.roleId, true);
+            },
+            submitFuncForm(){
+                let funcIds = []
+                let funcKeys = this.$refs.grantTree.getCheckedKeys()
+                let halfFuncKeys = this.$refs.grantTree.getHalfCheckedKeys()
+                for(let item of funcKeys){
+                    if(item >= 0){
+                        funcIds.push(item)
+                    }
+                }
+                for(let item of halfFuncKeys){
+                    if(item >= 0){
+                        funcIds.push(item)
+                    }
+                }
+                let params = {
+                    roleId: this.currentRoleId,
+                    funcIds: funcIds.join(",")
+                }
+                this.$http.post('/cmcProAdmin/role/funcRel/edit', params, {loading: true}).then(response => {
+                    if (response.data.success) {
+                        this.$message({
+                            message: '修改完成',
+                            type: 'success',
+                        });
+                        this.dialogFuncVisible = false
+                    }
+                }).catch(response => {
+                    console.log(response);
                 });
             }
         }

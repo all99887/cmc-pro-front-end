@@ -133,7 +133,7 @@
             },
             loadTreeData(){
                 //获取菜单列表
-                this.$http.post('/system/menuList', {}, {loading:true}).then(response => {
+                this.$http.post('/common/menuList', {}, {loading:true}).then(response => {
                     if (response.data.success) {
                         let funcList = response.data.funcList
                         funcList.filter((func) => {
@@ -240,7 +240,7 @@
     }
 </script>
 
-<style>
+<style scoped>
     .custom-tree-node {
         flex: 1;
         display: flex;

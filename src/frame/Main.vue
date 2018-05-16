@@ -33,6 +33,9 @@
                             <router-link :to="{ name: 'userAdmin'}" tag="li" replace @click.native="setRouterTitle('用户管理')">
                                 <el-menu-item index="userAdminIndex">用户管理</el-menu-item>
                             </router-link>
+                            <router-link :to="{ name: 'dictAdmin'}" tag="li" replace @click.native="setRouterTitle('数据字典')">
+                                <el-menu-item index="dictAdminIndex">数据字典</el-menu-item>
+                            </router-link>
                         </div>
                     </el-submenu>
                     <el-submenu v-for="(menu, index) in funcList" class="text-left"  :key="menu.funcId" :index= "index.toString()">
@@ -87,7 +90,7 @@
                 let funcName = sessionStorage.getItem("funcName")
                 this.routerTitle = funcName
                 //获取菜单列表
-                this.$http.post('/system/menuList', {}, {}).then(response =>  {
+                this.$http.post('/common/menuList', {}, {}).then(response =>  {
                     if(response.data.success){
                         let funcList = response.data.funcList
                         let funcListFinal = []

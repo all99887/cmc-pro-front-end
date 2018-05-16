@@ -13,6 +13,7 @@ import Hello from '../components/Hello'
 import FuncAdmin from '../components/admin/FuncAdmin'
 import RoleAdmin from '../components/admin/RoleAdmin'
 import UserAdmin from '../components/admin/UserAdmin'
+import DictAdmin from '../components/admin/DictAdmin'
 
 let router = new VueRouter({
     mode: 'history',
@@ -46,12 +47,16 @@ let router = new VueRouter({
                     path: '/role_html',
                     name: 'roleAdmin',
                     component: RoleAdmin
-                }
-                ,
+                },
                 {
                     path: '/cmcuser_html',
                     name: 'userAdmin',
                     component: UserAdmin
+                },
+                {
+                    path: '/dict_html',
+                    name: 'dictAdmin',
+                    component: DictAdmin
                 }
             ]
         },
