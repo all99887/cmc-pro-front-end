@@ -36,6 +36,9 @@
                             <router-link :to="{ name: 'dictAdmin'}" tag="li" replace @click.native="setRouterTitle('数据字典')">
                                 <el-menu-item index="dictAdminIndex">数据字典</el-menu-item>
                             </router-link>
+                            <router-link :to="{ name: 'logView'}" tag="li" replace @click.native="setRouterTitle('系统日志')">
+                                <el-menu-item index="logViewIndex">系统日志</el-menu-item>
+                            </router-link>
                         </div>
                     </el-submenu>
                     <el-submenu v-for="(menu, index) in funcList" class="text-left"  :key="menu.funcId" :index= "index.toString()">

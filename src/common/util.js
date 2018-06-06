@@ -44,11 +44,19 @@ function isEmpty(str) {
     }
 }
 
+function isEmptyObject( obj ) {
+    for ( var name in obj ) {
+        return false;
+    }
+    return true;
+}
+
 let util = {
     hashPwd: hashPwd,
     getWebRootPath: getWebRootPath,
     formatDateTime:formatDateTime,
-    isEmpty:isEmpty
+    isEmpty:isEmpty,
+    isEmptyObject:isEmptyObject
 }
 
 export default util

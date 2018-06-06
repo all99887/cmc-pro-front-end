@@ -4,8 +4,22 @@
             <el-col :span="24">
                 <div class="content-box">
                     <div class="button-box">
-                        <el-button size="medium" type="primary" @click="openDialog('add')">新增</el-button>
-                        <el-button size="medium" type="danger" @click="del">删除</el-button>
+                        <el-row :gutter="20">
+                            <el-col :span="17">
+                                <el-button size="medium" type="primary" @click="openDialog('add')">新增</el-button>
+                                <el-button size="medium" type="danger" @click="del">删除</el-button>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-col :span="24">
+                                    <el-input v-model="queryForm.roleName" placeholder="按角色名搜索" >
+                                        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+                                    </el-input>
+                                </el-col>
+                                <!--<el-col :span="6">-->
+                                    <!--<el-button size="medium" type="primary" @click="">搜索</el-button>-->
+                                <!--</el-col>-->
+                            </el-col>
+                        </el-row>
                     </div>
 
                     <section class="cmc-table">
@@ -34,8 +48,10 @@
 
                             <el-table-column label="操作" width="180px">
                                 <template slot-scope="scope">
-                                    <el-button size="mini" type="primary" @click="openDialog('edit', scope.row)">编辑</el-button>
-                                    <el-button size="mini" type="primary" @click="openFuncDialog(scope.row)">功能授权</el-button>
+                                    <el-button size="mini" type="primary" @click="openDialog('edit', scope.row)">编辑
+                                    </el-button>
+                                    <el-button size="mini" type="primary" @click="openFuncDialog(scope.row)">功能授权
+                                    </el-button>
                                 </template>
                             </el-table-column>
 
@@ -110,13 +126,16 @@
             return {
                 dialogTitle: '新增',
                 dialogVisible: false,
-                formType:'',
+                formType: '',
                 selectedRows: [],
                 tableList: [],
                 tableTotal: 0,
                 tablePageSize: 10,
                 tablePageIndex: 1,
                 form: this.initForm(),
+                queryForm() {
+                    roleName:''
+                },
                 rules: {
                     roleName: [
                         {required: true, message: '请输入角色名称', trigger: 'blur'},
@@ -127,12 +146,12 @@
                         {max: 64, message: '长度在64个字符以内', trigger: 'blur'}
                     ]
                 },
-                dialogFuncVisible:false,
+                dialogFuncVisible: false,
                 funcTreeList: [],
-                currentRoleId:'',
+                currentRoleId: '',
                 expendTreeKey: [-1],
                 defaultCheckedTreeKeys: [],
-                selFuncTreeList:[]
+                selFuncTreeList: []
             }
         },
         mounted() {
@@ -141,6 +160,10 @@
             })
         },
         methods: {
+            search(){
+                this.tablePageIndex = 1
+                this.loadTableData(this.queryForm)
+            },
             initForm() {
                 return {
                     roleName: '',
@@ -161,10 +184,13 @@
                 this.tablePageIndex = val
                 this.loadTableData()
             },
-            loadTableData() {
+            loadTableData(query) {
                 let params = {
                     pageindex: this.tablePageIndex,
                     pagesize: this.tablePageSize
+                }
+                if(query){
+                    params.roleName = query.roleName
                 }
                 this.$http.post('/cmcProAdmin/role/list', params, {loading: true}).then(response => {
                     if (response.data.success) {
@@ -172,7 +198,6 @@
                         this.tableList = page.records
                         this.tableTotal = page.total
                     } else {
-                        this.refreshCaptcha()
                     }
                 }).catch(response => {
                 });
@@ -253,6 +278,7 @@
                                 type: 'success',
                             });
                             this.dialogVisible = false
+                            this.tablePageIndex = 1
                             this.loadTableData()
                         }
                     }).catch(response => {
@@ -261,11 +287,11 @@
                 }).catch(() => {
                 });
             },
-            loadFuncTree(roleId, openDialog){
+            loadFuncTree(roleId, openDialog) {
                 let params = {
-                    roleId:roleId
+                    roleId: roleId
                 }
-                this.$http.post('/cmcProAdmin/role/funcRel/list', params, {loading:true}).then(response => {
+                this.$http.post('/cmcProAdmin/role/funcRel/list', params, {loading: true}).then(response => {
                     if (response.data.success) {
                         let funcList = response.data.allFuncList
                         let roleFuncRelList = response.data.roleFuncList
@@ -296,13 +322,13 @@
                         this.funcTreeList = [treeData]
 
                         let checkedTreeKeys = []
-                        for(let item of roleFuncRelList){
+                        for (let item of roleFuncRelList) {
                             checkedTreeKeys.push(item.funcId)
                         }
 
                         this.defaultCheckedTreeKeys = checkedTreeKeys
                         this.currentRoleId = roleId
-                        if(openDialog) {
+                        if (openDialog) {
                             this.dialogFuncVisible = true
                         }
                     }
@@ -310,20 +336,20 @@
                     console.log(response);
                 });
             },
-            openFuncDialog(row){
+            openFuncDialog(row) {
                 this.loadFuncTree(row.roleId, true);
             },
-            submitFuncForm(){
+            submitFuncForm() {
                 let funcIds = []
                 let funcKeys = this.$refs.grantTree.getCheckedKeys()
                 let halfFuncKeys = this.$refs.grantTree.getHalfCheckedKeys()
-                for(let item of funcKeys){
-                    if(item >= 0){
+                for (let item of funcKeys) {
+                    if (item >= 0) {
                         funcIds.push(item)
                     }
                 }
-                for(let item of halfFuncKeys){
-                    if(item >= 0){
+                for (let item of halfFuncKeys) {
+                    if (item >= 0) {
                         funcIds.push(item)
                     }
                 }

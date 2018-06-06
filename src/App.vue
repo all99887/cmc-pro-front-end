@@ -6,7 +6,14 @@
 
 <script>
 
+import dict from "~/common/dict";
+
 export default {
+    mounted: function () {
+        this.$nextTick(function () {
+            dict.getCodeData();
+        })
+    },
     methods: {
 
     }
@@ -38,6 +45,24 @@ export default {
     padding: 10px 20px;
     text-align: left;
   }
+
+.query-box{
+  padding: 10px 20px;
+  text-align: left;
+}
+
+.query-box-enter-active {
+  transition: all .3s ease;
+}
+.query-box-leave-active {
+  transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
+}
+.query-box-enter, .query-box-leave-to
+  /* .slide-fade-leave-active for below version 2.1.8 */ {
+  transform: translateY(10px);
+  opacity: 0;
+}
+
 
   /*解决表格上有el-switch时候下一个td鼠标滑过有黑线*/
 .el-table--enable-row-transition .el-table__body td{

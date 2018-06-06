@@ -4,10 +4,42 @@
             <el-col :span="24">
                 <div class="content-box">
                     <div class="button-box">
-                        <el-button size="medium" type="primary" @click="openDialog('add')">新增</el-button>
+                        <transition name="query-box">
+                        <div class="query-box" v-if="queryFormShow">
+                            <el-form ref="queryForm" :model="queryForm" label-width="100px" label-suffix="：" :inline="true">
+                                <el-form-item label="真实姓名" prop="realNameQuery">
+                                    <el-input v-model="queryForm.realName" placeholder="按真实姓名搜索"></el-input>
+                                </el-form-item>
+                                <el-form-item label="邮箱地址" prop="emailQuery">
+                                    <el-input v-model="queryForm.email" placeholder="按邮箱地址搜索"></el-input>
+                                </el-form-item>
+                                <el-form-item label="手机号" prop="mobileQuery">
+                                    <el-input v-model="queryForm.mobile" placeholder="按手机号搜索"></el-input>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                        </transition>
+                        <el-row :gutter="20">
+                            <el-col :span="17">
+                                <el-button size="medium" type="primary" @click="openDialog('add')">新增</el-button>
+                                <el-button size="medium" type="danger" @click="del">删除</el-button>
+                            </el-col>
+                            <el-col :span="7">
+                                <el-col :span="24">
+                                    <el-input v-model="queryForm.userName" placeholder="按用户名搜索" >
+                                        <el-button slot="prepend" @click="queryFormShow = !queryFormShow">更多</el-button>
+                                        <el-button slot="append" icon="el-icon-search" @click="search"></el-button>
+                                    </el-input>
+                                </el-col>
+                                <!--<el-col :span="6">-->
+                                <!--<el-button size="medium" type="primary" @click="">搜索</el-button>-->
+                                <!--</el-col>-->
+                            </el-col>
+                        </el-row>
 
-                        <el-button size="medium" type="danger" @click="del">删除</el-button>
                     </div>
+
+
 
                     <section class="cmc-table">
                         <el-table
@@ -124,10 +156,17 @@
 <script>
     import util from "~/common/util";
     import check from "~/common/check";
+    import DictSelect from "~/components/common/DictSelect";
 
     export default {
+        components:{'dict-select':DictSelect},
         data() {
             return {
+                value:'',
+                queryFormShow:false,
+                queryForm:{
+                    userName:''
+                },
                 dialogTitle: '新增',
                 dialogVisible: false,
                 formType: '',
@@ -169,6 +208,10 @@
             })
         },
         methods: {
+            search(){
+                this.tablePageIndex = 1
+                this.loadTableData(this.queryForm)
+            },
             initForm() {
                 return {
                     userName: '',
@@ -203,10 +246,13 @@
                     }
                 }
             },
-            loadTableData() {
+            loadTableData(query) {
                 let params = {
                     pageindex: this.tablePageIndex,
                     pagesize: this.tablePageSize
+                }
+                if(query){
+                    Object.assign(params, query)
                 }
                 this.$http.post('/cmcProAdmin/user/list', params, {loading: true}).then(response => {
                     if (response.data.success) {
@@ -295,6 +341,7 @@
                                 type: 'success',
                             });
                             this.dialogVisible = false
+                            this.tablePageIndex = 1
                             this.loadTableData()
                         }
                     }).catch(response => {

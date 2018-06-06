@@ -40,6 +40,7 @@
 <script>
     import util from '../common/util'
     import {SET_TOKEN} from "~/store/mutation-type";
+    import dict from "~/common/dict";
 
     export default {
         computed: {
@@ -78,7 +79,6 @@
         },
         methods: {
             refreshCaptcha(){
-                console.log(123)
                 this.$http.post('/system/webPicCaptcha.do', {}, {}).then(response =>  {
                     if(response.data.success){
                         this.captchaBase64 = response.data.pic

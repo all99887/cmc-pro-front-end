@@ -1,13 +1,28 @@
 <template>
     <div class="main-content-box">
         <el-row>
-            <el-col :span="9">
+            <el-col :span="11">
                 <div class="content-box">
                     <span class="dic_title">数据字典分类</span>
 
                     <div class="button-box">
-                        <el-button size="medium" type="primary" @click="openCategoryDialog('add')">新增</el-button>
-                        <el-button size="medium" type="danger" @click="delCategory">删除</el-button>
+                        <el-row :gutter="5">
+                            <el-col :span="12">
+                                <el-button size="medium" type="primary" @click="openCategoryDialog('add')">新增</el-button>
+                                <el-button size="medium" type="danger" @click="delCategory">删除</el-button>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-col :span="24">
+                                    <el-input v-model="queryForm.dictCategoryKey" placeholder="按分类key搜索" >
+                                        <el-button slot="append" size="mini" icon="el-icon-search" @click="search"></el-button>
+                                    </el-input>
+                                </el-col>
+                                <!--<el-col :span="6">-->
+                                <!--<el-button size="medium" type="primary" @click="">搜索</el-button>-->
+                                <!--</el-col>-->
+                            </el-col>
+                        </el-row>
+
                     </div>
 
                     <section class="cmc-table">
@@ -46,10 +61,16 @@
                     </section>
                 </div>
             </el-col>
-            <el-col :span="15">
+            <el-col :span="13">
                 <div class="content-box">
                     <div v-if="showDict">
                         <span class="dic_title">数据字典</span>
+
+                        <div class="button-box">
+                            <el-button size="medium" type="primary" @click="openDictDialog('add')">新增</el-button>
+                            <el-button size="medium" type="danger" @click="delDict">删除</el-button>
+                        </div>
+
 
                         <section class="cmc-table">
                             <el-table
@@ -110,10 +131,41 @@
                 <el-button type="primary" @click="submitCategoryForm()">确 定</el-button>
             </span>
         </el-dialog>
+
+        <el-dialog
+                :title="dictDialogTitle"
+                :visible.sync="dictDialogVisible"
+                width="500px">
+
+            <el-form ref="dictForm" :model="dictForm" :rules="dictRules" label-width="100px" label-suffix="：">
+                <el-form-item label="分类key" prop="dictCategoryKey">
+                    <el-input :disabled="true" v-model="dictForm.dictCategoryKey"></el-input>
+                </el-form-item>
+                <el-form-item label="字典key" prop="dictKey">
+                    <el-input :disabled="dictFormType === 'edit'" v-model="dictForm.dictKey"></el-input>
+                </el-form-item>
+                <el-form-item label="字典value" prop="dictValue">
+                    <el-input v-model="dictForm.dictValue"></el-input>
+                </el-form-item>
+                <el-form-item label="排序值" prop="orderNum">
+                    <el-input v-model="dictForm.orderNum"></el-input>
+                </el-form-item>
+                <el-form-item label="字典描述" prop="dictCategoryDesc">
+                    <el-input type="textarea" v-model="dictForm.dictDesc"></el-input>
+                </el-form-item>
+            </el-form>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dictDialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="submitDictForm()">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
+    import dict from "~/common/dict";
+
     export default {
         data() {
             return {
@@ -126,6 +178,9 @@
                 categoryDialogVisible: false,
                 categoryFormType:'',
                 categoryForm: this.initCategoryForm(),
+                queryForm:{
+                    dictCategoryKey:''
+                },
                 categoryRules: {
                     dictCategoryKey: [
                         {required: true, message: '请输入分类key', trigger: 'blur'},
@@ -145,16 +200,24 @@
                 dictFormType:'',
                 dictForm: this.initDictForm(),
                 dictRules: {
-                    dictCategoryKey: [
-                        {required: true, message: '请输入分类key', trigger: 'blur'},
+                    dictKey: [
+                        {required: true, message: '请输入字典key', trigger: 'blur'},
                         {max: 32, message: '长度在32个字符以内', trigger: 'blur'}
                     ],
-                    dictCategoryDesc: [
+                    dictValue: [
+                        {required: true, message: '请输入字典value', trigger: 'blur'},
+                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'}
+                    ],
+                    orderNum: [
+                        {required: true, message: '请输入排序值', trigger: 'blur'},
+                        {pattern : '^(0|[1-9]\\d{0,2})$', message: '排序值必须为小于1000的正整数', trigger: 'blur' }
+                    ],
+                    dictDesc: [
                         {max: 64, message: '长度在64个字符以内', trigger: 'blur'}
                     ]
                 },
                 showDict: false,
-
+                currentDict:{}
             }
         },
         mounted() {
@@ -163,6 +226,10 @@
             })
         },
         methods: {
+            search(){
+                this.categoryTablePageIndex = 1
+                this.loadCategoryData(this.queryForm)
+            },
             initCategoryForm() {
                 return {
                     dictCategoryKey: '',
@@ -171,8 +238,8 @@
             },
             initDictForm() {
                 return {
+                    dictId:'',
                     dictCategoryKey: '',
-                    dictCategoryDesc: '',
                     dictKey: '',
                     dictValue: '',
                     dictDesc: '',
@@ -205,10 +272,13 @@
                 this.dictTablePageIndex = val
                 this.loadDictData()
             },
-            loadCategoryData() {
+            loadCategoryData(query) {
                 let params = {
                     pageindex: this.categoryTablePageIndex,
                     pagesize: this.categoryTablePageSize
+                }
+                if(query){
+                    params.dictCategoryKey = query.dictCategoryKey
                 }
                 this.$http.post('/cmcProAdmin/dict/category/list', params, {loading: true}).then(response => {
                     if (response.data.success) {
@@ -232,28 +302,34 @@
                 this.categoryDialogVisible = true
             },
             submitCategoryForm() {
-                let url = ''
-                let successMsg = ''
-                if(this.categoryFormType === 'add') {
-                    url = '/cmcProAdmin/dict/category/add'
-                    successMsg = '新增成功'
-                } else {
-                    url = '/cmcProAdmin/dict/category/edit'
-                    successMsg = '编辑成功'
-                }
-                this.$http.post(url, this.categoryForm, {loading: true}).then(response => {
-                    if (response.data.success) {
-                        this.categoryFormType = ''
-                        this.$message({
-                            message: successMsg,
-                            type: 'success',
+                this.$refs['categoryForm'].validate((valid) => {
+                    if (valid) {
+                        let url = ''
+                        let successMsg = ''
+                        if(this.categoryFormType === 'add') {
+                            url = '/cmcProAdmin/dict/category/add'
+                            successMsg = '新增成功'
+                        } else {
+                            url = '/cmcProAdmin/dict/category/edit'
+                            successMsg = '编辑成功'
+                        }
+                        this.$http.post(url, this.categoryForm, {loading: true}).then(response => {
+                            if (response.data.success) {
+                                this.categoryFormType = ''
+                                this.$message({
+                                    message: successMsg,
+                                    type: 'success',
+                                });
+                                this.categoryDialogVisible = false
+                                this.loadCategoryData()
+                                dict.getCodeData()
+                            }
+                        }).catch(response => {
+                            console.log(response);
                         });
-                        this.categoryDialogVisible = false
-                        this.loadCategoryData()
                     }
-                }).catch(response => {
-                    console.log(response);
-                });
+                })
+
             },
             delCategory(){
                 this.$confirm('确认删除吗?', '提示', {
@@ -265,12 +341,13 @@
                     })
                     this.$http.post('/cmcProAdmin/dict/category/del', {ids: ids.join(',')}, {}).then(response => {
                         if (response.data.success) {
-                            this.formType = ''
                             this.$message({
                                 message: '删除成功',
                                 type: 'success',
                             });
+                            this.categoryTablePageIndex = 1
                             this.loadCategoryData()
+                            dict.getCodeData()
                         }
                     }).catch(response => {
                         console.log(response);
@@ -279,6 +356,7 @@
                 });
             },
             showDictTable(row) {
+                this.currentDict = row
                 this.loadDictData(row.dictCategoryKey)
             },
             loadDictData(categoryKey){
@@ -297,6 +375,70 @@
                 }).catch(response => {
                     console.log(response);
                 });
+            },
+            openDictDialog(type, row){
+                this.dictFormType = type
+                this.dictForm = this.initDictForm()
+                if(type === 'add') {
+                    this.dictForm.dictCategoryKey = this.currentDict.dictCategoryKey
+                } else {
+                    Object.assign(this.dictForm, row)
+                    this.dictForm.orderNum = this.dictForm.orderNum.toString()
+                }
+                this.dictDialogVisible = true
+            },
+            delDict(){
+                this.$confirm('确认删除吗?', '提示', {
+                    //type: 'warning'
+                }).then(() => {
+                    let ids = []
+                    this.dictSelectedRows.forEach((item) => {
+                        ids.push(item.dictId)
+                    })
+                    this.$http.post('/cmcProAdmin/dict/del', {ids: ids.join(',')}, {}).then(response => {
+                        if (response.data.success) {
+                            this.$message({
+                                message: '删除成功',
+                                type: 'success',
+                            });
+                            this.dictTablePageIndex = 1
+                            this.loadDictData()
+                            dict.getCodeData()
+                        }
+                    }).catch(response => {
+                        console.log(response);
+                    });
+                }).catch(() => {
+                });
+            },
+            submitDictForm(){
+                this.$refs['dictForm'].validate((valid) => {
+                    if (valid) {
+                        let url = ''
+                        let successMsg = ''
+                        if(this.dictFormType === 'add') {
+                            url = '/cmcProAdmin/dict/add'
+                            successMsg = '新增成功'
+                        } else {
+                            url = '/cmcProAdmin/dict/edit'
+                            successMsg = '编辑成功'
+                        }
+                        this.$http.post(url, this.dictForm, {loading: true}).then(response => {
+                            if (response.data.success) {
+                                this.dictFormType = ''
+                                this.$message({
+                                    message: successMsg,
+                                    type: 'success',
+                                });
+                                this.dictDialogVisible = false
+                                this.loadDictData(this.currentDict.dictCategoryKey)
+                                dict.getCodeData()
+                            }
+                        }).catch(response => {
+                            console.log(response);
+                        });
+                    }
+                })
             }
         }
     }
