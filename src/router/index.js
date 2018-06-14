@@ -15,6 +15,7 @@ import RoleAdmin from '../components/admin/RoleAdmin'
 import UserAdmin from '../components/admin/UserAdmin'
 import DictAdmin from '../components/admin/DictAdmin'
 import LogView from '../components/admin/LogView'
+import JmdUser from '../components/user/JmdUser'
 
 let router = new VueRouter({
     mode: 'history',
@@ -58,12 +59,17 @@ let router = new VueRouter({
                     path: '/dict_html',
                     name: 'dictAdmin',
                     component: DictAdmin
-                }
-                ,
+                },
                 {
                     path: '/log_html',
                     name: 'logView',
                     component: LogView
+                }
+                ,
+                {
+                    path: '/jmdUser_html',
+                    name: 'jmdUser',
+                    component: JmdUser
                 }
             ]
         },

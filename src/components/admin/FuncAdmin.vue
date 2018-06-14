@@ -48,8 +48,8 @@
                                 <el-form-item v-if="form.pid != -1" label="功能url前缀" prop="funcUrlPre">
                                     <el-input v-model="form.funcUrlPre"></el-input>
                                 </el-form-item>
-                                <el-form-item v-if="form.pid != -1" label="功能入口url" prop="funcIndexUrl">
-                                    <el-input v-model="form.funcIndexUrl"></el-input>
+                                <el-form-item v-if="form.pid != -1" label="功能路由名称" prop="funcRouteName">
+                                    <el-input v-model="form.funcRouteName"></el-input>
                                 </el-form-item>
                                 <el-form-item label="排序值" prop="orderNum">
                                     <el-input v-model="form.orderNum"></el-input>
@@ -98,10 +98,9 @@
                         {max: 32, message: '长度在32个字符以内', trigger: 'blur' },
                         {pattern : '^/[a-zA-Z]*$', message: '功能url前缀需以/开头后面只能有字母', trigger: 'blur' }
                     ],
-                    funcIndexUrl: [
-                        {required: true, message: '请输入功能入口url', trigger: 'blur'},
-                        {max: 32, message: '长度在32个字符以内', trigger: 'blur' },
-                        {pattern : '^/[a-zA-Z\.]*$', message: '功能入口url需以/开头后面只能有字母与.', trigger: 'blur' }
+                    funcRouteName: [
+                        {required: true, message: '请输入功能路由名称', trigger: 'blur'},
+                        {max: 32, message: '长度在32个字符以内', trigger: 'blur' }
                     ],
                     orderNum: [
                         {required: true, message: '请输入排序值', trigger: 'blur'},
@@ -125,7 +124,7 @@
                     pid:-1,
                     funcName:'',
                     funcUrlPre:'',
-                    funcIndexUrl:'',
+                    funcRouteName:'',
                     orderNum:'',
                     funcDesc:'',
                     status:1

@@ -48,7 +48,7 @@
                                 <template slot="title">{{ submenu.func_name }}</template>
                                 <el-menu-item :index="index.toString() + '-' + subindex.toString()">{{ submenu.funcName }}</el-menu-item>
                             </el-submenu>
-                            <router-link v-else :to="{ name: submenu.funcIndexUrl }" tag="li" replace @click.native="setRouterTitle(submenu.funcName)">
+                            <router-link v-else :to="{ name: submenu.funcRouteName }" tag="li" replace @click.native="setRouterTitle(submenu.funcName)">
                                 <el-menu-item :index="index.toString() + '-' + subindex.toString()">{{ submenu.funcName }}</el-menu-item>
                             </router-link>
                         </div>
