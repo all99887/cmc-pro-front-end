@@ -11,7 +11,7 @@
                 <el-dropdown trigger="hover">
                     <span class="el-dropdown-link userinfo-inner">{{sysUserName}}<i class="el-icon-arrow-down el-icon--right"></i></span>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>修改密码</el-dropdown-item>
+                        <el-dropdown-item @click.native="pwdDialogOpen">修改密码</el-dropdown-item>
                         <el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
@@ -70,9 +70,39 @@
                 </div>
             </section>
         </el-col>
+
+        <el-dialog
+                :title="'修改密码'"
+                :visible.sync="dialogVisible"
+                width="500px">
+
+            <el-form ref="pwdForm" :model="pwdForm" :rules="rules" label-width="120px" label-suffix="：">
+
+                <el-form-item label="原密码" prop="oldPassword">
+                    <el-input v-model="pwdForm.oldPassword" type="password" maxlength="32" auto-complete="off"></el-input>
+                </el-form-item>
+
+                <el-form-item label="新密码" prop="password">
+                    <el-input v-model="pwdForm.password" type="password" maxlength="32" auto-complete="off"></el-input>
+                </el-form-item>
+
+                <el-form-item label="重复新密码" prop="passwordRepeat">
+                    <el-input v-model="pwdForm.passwordRepeat" type="password" maxlength="32" auto-complete="off"></el-input>
+                </el-form-item>
+
+            </el-form>
+
+            <span slot="footer" class="dialog-footer">
+                            <el-button @click="dialogVisible = false">取 消</el-button>
+                            <el-button type="primary" @click="submitChangePwdForm()">确 定</el-button>
+                        </span>
+        </el-dialog>
+
     </el-row>
 </template>
 <script>
+    import util from "~/common/util";
+
     export default {
         data() {
             return {
@@ -81,7 +111,24 @@
                 funcList: [],
                 sysAdminOn: false,
                 sysUserName: '',
-                routerTitle:'欢迎'
+                routerTitle:'欢迎',
+                dialogVisible:false,
+                pwdForm:this.initForm(),
+                rules:{
+                    oldPassword: [
+                        {required: true, message: '请输入原密码', trigger: 'blur'},
+                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'}
+                    ],
+                    password: [
+                        {required: true, message: '请输入新密码', trigger: 'blur'},
+                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'}
+                    ],
+                    passwordRepeat: [
+                        {required: true, message: '请输入重复新密码', trigger: 'blur'},
+                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'},
+                        { validator: this.checkSame, trigger: 'blur' },
+                    ],
+                }
             }
         },
         mounted() {
@@ -114,11 +161,26 @@
                         this.funcList = funcListFinal
                     }
                 }).catch(response => {
-                    console.log(response);
                 });
             })
         },
         methods: {
+            initForm(){
+                return {
+                    oldPassword:'',
+                    password:'',
+                    passwordRepeat:''
+                }
+            },
+            checkSame(rule, value, callback) {
+                if(this.pwdForm.password === '') {
+                    callback()
+                }
+                if (this.pwdForm.password !== this.pwdForm.passwordRepeat) {
+                    return callback(new Error('两次输入的新密码不一致'));
+                }
+                callback()
+            },
             setRouterTitle(title){
                 sessionStorage.setItem("funcName", title)
                 this.routerTitle = title
@@ -140,6 +202,29 @@
             },
             menuClick () {
 
+            },
+            pwdDialogOpen(){
+                this.dialogVisible = true
+            },
+            submitChangePwdForm(){
+                this.$refs['pwdForm'].validate((valid) => {
+                    if (valid) {
+                        var param = {
+                            oldPassword: util.hashPwd(this.pwdForm.oldPassword),
+                            password: util.hashPwd(this.pwdForm.password)
+                        }
+                        this.$http.post('/system/changePwd', param, {loading: true}).then(response => {
+                            if (response.data.success) {
+                                this.$message({
+                                    message: '修改成功',
+                                    type: 'success',
+                                });
+                                this.dialogVisible = false
+                            }
+                        }).catch(response => {
+                        });
+                    }
+                })
             }
         }
 
