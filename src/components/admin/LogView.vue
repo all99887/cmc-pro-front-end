@@ -83,6 +83,10 @@
                             :visible.sync="dialogVisible"
                             width="500px">
 
+                        <!--<div v-for="o in paramsList" :key="o" class="text item">-->
+                            {{ paramsList }}
+                        <!--</div>-->
+
                     </el-dialog>
 
                 </div>
@@ -98,7 +102,7 @@
         data() {
             return {
                 queryFormShow:false,
-                dialogTitle: '新增',
+                dialogTitle: '请求参数',
                 dialogVisible: false,
                 formType: '',
                 selectedRows: [],
@@ -112,7 +116,8 @@
                     operatorIp:'',
                     url:'',
                     time:[]
-                }
+                },
+                paramsList:''
             }
         },
         mounted() {
@@ -136,7 +141,6 @@
                 this.selectedRows = rows
             },
             handleSizeChange(val) {
-                // console.log(`每页 ${val} 条`)
                 this.tablePageIndex = 1
                 this.tablePageSize = val
                 this.loadTableData()
@@ -181,15 +185,14 @@
                 }).catch(response => {
                 });
             },
-            openDialog(formType, data) {
-                this.formType = formType
-                this.form = this.initForm()
-                if (formType == 'edit') {
-                    this.dialogTitle = '编辑'
-                    Object.assign(this.form, data)
-                } else {
-                    this.dialogTitle = '新增'
-                }
+            openDialog(data) {
+                this.paramsList = data.params
+                // let param = JSON.parse(data.params);
+                // console.log(param)
+                // let keys = Object.keys(param)
+                // for(let key of keys){
+                //     this.paramsList.push(`${key} : ${param[key]}`)
+                // }
                 this.dialogVisible = true
             },
         }
