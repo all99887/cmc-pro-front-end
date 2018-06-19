@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Loading, Message } from 'element-ui'
 import router from "~/router";
 
+import i18n from '~/i18n/i18n';
 
 const debug = process.env.NODE_ENV !== 'production'; // 开发环境中为true，否则为false
 let loadinginstace
@@ -36,12 +37,21 @@ axios.interceptors.response.use(
         }
         if(response.data.success === false) {
             //弹出错误提示
-            console.log('error')
             let errorList = response.data.error;
             if(errorList !== null && errorList.length > 0){
-                let errorMsg = errorList.join(",")
+                let errorMsgList = []
+                for(let errorKey of errorList){
+                    console.log(errorKey)
+                    let errorMsg = i18n.t(errorKey)
+                    if(errorMsg) {
+                        errorMsgList.push(errorMsg)
+                    } else {
+                        errorMsgList.push(errorKey)
+                    }
+                }
+                let errorMsgFinal = errorMsgList.join(",")
                 Message({
-                    message: errorMsg,
+                    message: errorMsgFinal,
                     type: 'error'
                 });
             }
@@ -49,6 +59,7 @@ axios.interceptors.response.use(
         return response;
     },
     error => {
+        console.log(error)
         if(loadinginstace){
             loadinginstace.close()
         }
@@ -64,7 +75,7 @@ axios.interceptors.response.use(
                         })
                     } else if (authResult === 'noPermission') {
                         Message({
-                            message: '没有操作权限',
+                            message: 'unauthorized',
                             type: 'error'
                         });
                     }

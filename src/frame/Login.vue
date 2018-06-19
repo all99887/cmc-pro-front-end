@@ -6,22 +6,22 @@
         <!--</header>-->
 
         <section class="login-content-box">
-            <div class="form-head">登录</div>
+            <div class="form-head">{{$t('login.title')}}</div>
             <el-form ref="loginForm" :model="loginForm" :rules="rules" size="large">
 
                 <el-form-item label="" prop="username">
-                    <el-input v-model="loginForm.username" placeholder="请输入用户名"></el-input>
+                    <el-input v-model="loginForm.username" :placeholder="$t('login.placeholder.username')" maxlength="20"></el-input>
                 </el-form-item>
 
                 <el-form-item label="" prop="password">
                     <el-input type="password" v-model="loginForm.password" auto-complete="off"
-                              placeholder="请输入密码" @keyup.enter.native="pressKey"></el-input>
+                              :placeholder="$t('login.placeholder.password')" @keyup.enter.native="pressKey"  maxlength="20"></el-input>
                 </el-form-item>
 
                 <div class="login-captcha">
                     <el-form-item label="" prop="captcha">
                         <el-input v-model="loginForm.captcha" auto-complete="off"
-                                  placeholder="请输入验证码" @keyup.enter.native="pressKey">
+                                  :placeholder="$t('login.placeholder.captcha')" @keyup.enter.native="pressKey"  maxlength="4">
                             <template slot="append">
                                 <img class="login-captcha" :src="captchaPic" @click="refreshCaptcha"/>
                             </template>
@@ -30,7 +30,7 @@
                 </div>
 
                 <el-form-item>
-                    <el-button type="primary" @click="submitForm('loginForm')" style="width: 100%">登录</el-button>
+                    <el-button type="primary" @click="submitForm('loginForm')" style="width: 100%">{{$t('login.title')}}</el-button>
                 </el-form-item>
             </el-form>
         </section>
@@ -58,16 +58,16 @@
                 },
                 rules: {
                     username: [
-                        {required: true, message: '请输入用户名', trigger: 'blur'},
-                        {max: 20, message: '长度在20个字符以内', trigger: 'blur' }
+                        {required: true, message: this.$t('login.rules.username.required'), trigger: 'blur'},
+                        {max: 20, message: this.$t('login.rules.username.max'), trigger: 'blur' }
                     ],
                     password: [
-                        {required: true, message: '请输入密码', trigger: 'blur'},
-                        {max: 20, message: '长度在20个字符以内', trigger: 'blur' }
+                        {required: true, message: this.$t('login.rules.password.required'), trigger: 'blur'},
+                        {max: 20, message: this.$t('login.rules.password.max'), trigger: 'blur' }
                     ],
                     captcha: [
-                        {required: true, message: '请输入验证码', trigger: 'blur'},
-                        {max: 4, message: '长度在4个字符以内', trigger: 'blur' }
+                        {required: true, message: this.$t('login.rules.captcha.required'), trigger: 'blur'},
+                        {max: 4, message: this.$t('login.rules.captcha.max'), trigger: 'blur' }
                     ]
                 }
             }
@@ -114,7 +114,6 @@
                         this.refreshCaptcha()
                     }
                 }).catch(response => {
-                    console.log(response);
                 });
             },
             pressKey(e) {

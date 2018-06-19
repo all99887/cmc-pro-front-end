@@ -11,8 +11,8 @@
                 <el-dropdown trigger="hover">
                     <span class="el-dropdown-link userinfo-inner">{{sysUserName}}<i class="el-icon-arrow-down el-icon--right"></i></span>
                     <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item @click.native="pwdDialogOpen">修改密码</el-dropdown-item>
-                        <el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
+                        <el-dropdown-item @click.native="pwdDialogOpen">{{$t('mainPage.menu.changePassword')}}</el-dropdown-item>
+                        <el-dropdown-item divided @click.native="logout">{{$t('mainPage.menu.logout')}}</el-dropdown-item>
                     </el-dropdown-menu>
                 </el-dropdown>
             </el-col>
@@ -72,30 +72,28 @@
         </el-col>
 
         <el-dialog
-                :title="'修改密码'"
+                :title="$t('mainPage.changePassword.dialog.title')"
                 :visible.sync="dialogVisible"
                 width="500px">
 
-            <el-form ref="pwdForm" :model="pwdForm" :rules="rules" label-width="120px" label-suffix="：">
-
-                <el-form-item label="原密码" prop="oldPassword">
-                    <el-input v-model="pwdForm.oldPassword" type="password" maxlength="32" auto-complete="off"></el-input>
+            <el-form ref="pwdForm" :model="pwdForm" :rules="rules" label-width="400px" label-position="top" label-suffix="：">
+                <el-form-item :label="$t('mainPage.changePassword.label.oldPassword')" prop="oldPassword">
+                    <el-input v-model="pwdForm.oldPassword" type="password" :placeholder="$t('mainPage.changePassword.label.oldPassword')" maxlength="32" auto-complete="off"></el-input>
                 </el-form-item>
 
-                <el-form-item label="新密码" prop="password">
-                    <el-input v-model="pwdForm.password" type="password" maxlength="32" auto-complete="off"></el-input>
+                <el-form-item :label="$t('mainPage.changePassword.label.password')" prop="password">
+                    <el-input v-model="pwdForm.password" type="password" :placeholder="$t('mainPage.changePassword.label.password')" maxlength="32" auto-complete="off"></el-input>
                 </el-form-item>
 
-                <el-form-item label="重复新密码" prop="passwordRepeat">
-                    <el-input v-model="pwdForm.passwordRepeat" type="password" maxlength="32" auto-complete="off"></el-input>
+                <el-form-item :label="$t('mainPage.changePassword.label.passwordRepeat')" prop="passwordRepeat">
+                    <el-input v-model="pwdForm.passwordRepeat" type="password" :placeholder="$t('mainPage.changePassword.label.passwordRepeat')" maxlength="32" auto-complete="off"></el-input>
                 </el-form-item>
-
             </el-form>
 
             <span slot="footer" class="dialog-footer">
-                            <el-button @click="dialogVisible = false">取 消</el-button>
-                            <el-button type="primary" @click="submitChangePwdForm()">确 定</el-button>
-                        </span>
+                <el-button @click="dialogVisible = false">{{$t('common.btn.cancel')}}</el-button>
+                <el-button type="primary" @click="submitChangePwdForm()">{{$t('common.btn.ok')}}</el-button>
+            </span>
         </el-dialog>
 
     </el-row>
@@ -111,21 +109,21 @@
                 funcList: [],
                 sysAdminOn: false,
                 sysUserName: '',
-                routerTitle:'欢迎',
+                routerTitle:'welcome',
                 dialogVisible:false,
                 pwdForm:this.initForm(),
                 rules:{
                     oldPassword: [
-                        {required: true, message: '请输入原密码', trigger: 'blur'},
-                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'}
+                        {required: true, message: this.$t('mainPage.changePassword.rules.oldPassword.required'), trigger: 'blur'},
+                        {max: 32, message: this.$t('mainPage.changePassword.rules.oldPassword.max'), trigger: 'blur'}
                     ],
                     password: [
-                        {required: true, message: '请输入新密码', trigger: 'blur'},
-                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'}
+                        {required: true, message: this.$t('mainPage.changePassword.rules.password.required'), trigger: 'blur'},
+                        {max: 32, message: this.$t('mainPage.changePassword.rules.password.max'), trigger: 'blur'}
                     ],
                     passwordRepeat: [
-                        {required: true, message: '请输入重复新密码', trigger: 'blur'},
-                        {max: 32, message: '长度在32个字符以内', trigger: 'blur'},
+                        {required: true, message: this.$t('mainPage.changePassword.rules.passwordRepeat.required'), trigger: 'blur'},
+                        {max: 32, message: this.$t('mainPage.changePassword.rules.passwordRepeat.max'), trigger: 'blur'},
                         { validator: this.checkSame, trigger: 'blur' },
                     ],
                 }
@@ -177,7 +175,7 @@
                     callback()
                 }
                 if (this.pwdForm.password !== this.pwdForm.passwordRepeat) {
-                    return callback(new Error('两次输入的新密码不一致'));
+                    return callback(new Error(this.$t('mainPage.changePassword.rules.passwordRepeat.same')));
                 }
                 callback()
             },
@@ -188,14 +186,13 @@
             //退出登录
             logout () {
                 var _this = this;
-                this.$confirm('确认退出吗?', '提示', {
+                this.$confirm(this.$t('mainPage.logout.confirmTitle'), this.$t('mainPage.logout.confirmType'), {
                     //type: 'warning'
                 }).then(() => {
                     sessionStorage.clear()
                     this.$http.post('/system/logout', {}, {}).then(response =>  {
                         this.$router.push({name:'login'});
                     }).catch(response => {
-                        console.log(response);
                     });
                 }).catch(() => {
                 });
@@ -216,7 +213,7 @@
                         this.$http.post('/system/changePwd', param, {loading: true}).then(response => {
                             if (response.data.success) {
                                 this.$message({
-                                    message: '修改成功',
+                                    message: this.$t('common.msg.success'),
                                     type: 'success',
                                 });
                                 this.dialogVisible = false

@@ -25,6 +25,11 @@ export default {
   font-family: Helvetica, sans-serif;
   text-align: center;
 }
+
+.el-form--label-top .el-form-item__label{
+  width: 100%;
+}
+
 .main-content-box{
   background-color: #f1f2f7;
 }
