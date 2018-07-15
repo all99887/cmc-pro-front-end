@@ -100,6 +100,7 @@
 </template>
 <script>
     import util from "~/common/util";
+    import * as types from '~/store/mutation-type.js';
 
     export default {
         data() {
@@ -131,6 +132,16 @@
         },
         mounted() {
             this.$nextTick(function () {
+
+                //修正main的高度
+                let windowHeight = window.innerHeight
+                this.$store.commit(types.SET_CONTENT_BOX_HEIGHT, (windowHeight - 150) + 'px' )
+                let _this = this
+                window.onresize = function temp() {
+                    let windowHeight = window.innerHeight
+                    _this.$store.commit(types.SET_CONTENT_BOX_HEIGHT, (windowHeight - 150) + 'px' )
+                };
+
                 let realName = sessionStorage.getItem('realName');
                 if (realName) {
                     this.sysUserName = realName || '';

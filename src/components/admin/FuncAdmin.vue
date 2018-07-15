@@ -2,7 +2,7 @@
     <div class="main-content-box">
         <el-row>
             <el-col :span="8">
-                <div class="content-box">
+                <div class="content-box" :style="{height: $store.getters.contentBoxHeight}">
                     <span class="func_title">功能列表</span>
                     <el-tree
                             :data="funcTreeList"
@@ -36,7 +36,7 @@
                 </div>
             </el-col>
             <el-col :span="16">
-                <div class="content-box">
+                <div class="content-box" :style="{height: $store.getters.contentBoxHeight}">
                     <div v-if="formType !== ''">
                         <span class="func_title">{{formTitle}}</span>
                         <div class="form-box">

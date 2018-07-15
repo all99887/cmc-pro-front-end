@@ -2,7 +2,7 @@
     <div class="main-content-box">
         <el-row>
             <el-col :span="11">
-                <div class="content-box">
+                <div class="content-box" :style="{height: $store.getters.contentBoxHeight}">
                     <span class="dic_title">数据字典分类</span>
 
                     <div class="button-box">
@@ -62,7 +62,7 @@
                 </div>
             </el-col>
             <el-col :span="13">
-                <div class="content-box">
+                <div class="content-box" :style="{height: $store.getters.contentBoxHeight}">
                     <div v-if="showDict">
                         <span class="dic_title">数据字典</span>
 
