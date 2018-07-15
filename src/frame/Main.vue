@@ -202,6 +202,7 @@
             },
             pwdDialogOpen(){
                 this.dialogVisible = true
+                this.pwdForm = this.initForm()
             },
             submitChangePwdForm(){
                 this.$refs['pwdForm'].validate((valid) => {

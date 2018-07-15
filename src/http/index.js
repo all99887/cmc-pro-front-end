@@ -41,7 +41,6 @@ axios.interceptors.response.use(
             if(errorList !== null && errorList.length > 0){
                 let errorMsgList = []
                 for(let errorKey of errorList){
-                    console.log(errorKey)
                     let errorMsg = i18n.t(errorKey)
                     if(errorMsg) {
                         errorMsgList.push(errorMsg)

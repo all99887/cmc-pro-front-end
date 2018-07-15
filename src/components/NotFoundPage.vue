@@ -1,7 +1,6 @@
 <template>
   <div>
-    <h1>404</h1>
-    <h2>找不到该页面</h2>
+    <h1>404 Not Found</h1>
   </div>
 </template>
 
